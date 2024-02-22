@@ -1,0 +1,78 @@
+% package pour les mathématiques
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{mathrsfs}
+\usepackage{stmaryrd} % pour les intervalles d'entiers
+\usepackage{esint} % pour les intégrales doubles et triples
+\usepackage{esvect} % pour les vecteurs
+
+\usepackage{tikz} % pour les dessins
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepgfplotslibrary{fillbetween}
+\usepackage{pgfmath-xfp}
+\usetikzlibrary{patterns}
+\usetikzlibrary{bending}
+
+% pour utiliser \mathcal 
+
+%macros personnelles
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+
+\newcommand{\EX}{\mathbb{E}(X)}
+\newcommand{\E}{\mathbb{E}}
+
+\DeclareMathOperator{\var}{Var}
+\DeclareMathOperator{\cov}{Cov}
+\DeclareMathOperator{\prob}{P}
+
+\newcommand{\drawOpenRightHook}[3]{
+	\draw[#3, thick] ({#1 + 0.1}, {#2 + 0.02}) -- (#1,#2 + 0.02) -- (#1,#2 - 0.02) -- ({#1 + 0.1}, {#2 - 0.02});
+}
+
+\makeatletter
+\pgfmathdeclarefunction{erf}{1}{%
+  \begingroup
+    \pgfmathparse{#1 > 0 ? 1 : -1}%
+    \edef\sign{\pgfmathresult}%
+    \pgfmathparse{abs(#1)}%
+    \edef\x{\pgfmathresult}%
+    \pgfmathparse{1/(1+0.3275911*\x)}%
+    \edef\t{\pgfmathresult}%
+    \pgfmathparse{%
+      1 - (((((1.061405429*\t -1.453152027)*\t) + 1.421413741)*\t 
+      -0.284496736)*\t + 0.254829592)*\t*exp(-(\x*\x))}%
+    \edef\y{\pgfmathresult}%
+    \pgfmathparse{(\sign)*\y}%
+    \pgfmath@smuggleone\pgfmathresult%
+  \endgroup
+}
+\makeatother
+
+\pgfmathdeclarefunction{gauss}{3}{%
+    \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+}
+
+\def\densnorm#1{1/sqrt(2*pi)*exp(-0.5*(#1*#1))}
+
+%======================================ALGORITHMES=================================
+\usepackage{algorithm , algorithmic }
+%%% francisation des algorithmes  :
+\renewcommand{\listalgorithmname}{Liste des algorithmes}
+\floatname{algorithm}{Algorithme}
+\renewcommand{\algorithmicreturn}{\textbf{retourne}}
+
+
+\renewcommand{\And}{\textbf{et}\ }
+
+\renewcommand{\algorithmicrequire}{\textbf{Entrée:}}
+\renewcommand{\algorithmicensure}{\textbf{Sortie:}}
+%\renewcommand{\algorithmiccomment}[1]{\{#1\}}
+\renewcommand{\algorithmicend}{\textbf{fin}}
+\renewcommand{\algorithmicif}{\textbf{si}}
+\renewcommand{\algorithmicthen}{\textbf{alors}}
+\renewcommand{\algorithmicelse}{\textbf{sinon}}
+\renewcommand{\algorithmicfor}{\textbf{pour}}
+\renewcommand{\algorithmicforall}{\textbf{pour tout}}
+\renewcommand{\algorithmicdo}{\textbf{faire}}
+\renewcommand{\algorithmicwhile}{\textbf{tant que}}

@@ -1,0 +1,46 @@
+\documentclass[fleqn,a4paper,11pt]{book}
+\usepackage[french]{babel}
+\usepackage[autolanguage]{numprint}
+\usepackage{makecell} % pour les tableaux
+\usepackage{import}
+
+\input{preambule_general.tex}
+\input{preambule_math.tex}
+\input{preambule_book_new.tex}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+
+\usetikzlibrary{decorations.pathreplacing}
+
+\geometry{hmargin=2.3cm,vmargin=2.3cm}
+
+\title{Optimisation et réseaux de neurones}
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\chapter{Fonctions et optimisation}
+
+\import{01/}{cours}
+
+\newpage
+
+\chapter{Réseaux de neurones}
+%\import{02/}{Cours}
+
+\newpage
+
+
+
+\appendix
+\chapter{Compétences attendues à l'issue de ce cours}
+
+%\import{Competences/}{TD}
+
+
+
+\end{document}
+
