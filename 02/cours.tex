@@ -1,0 +1,156 @@
+\section{Perceptron}
+
+%--------------------------------------------------------------------
+\subsection{Perceptron linéaire}
+
+\index{perceptron!lineaire@linéaire}
+
+Le principe du perceptron linéaire est de prendre des valeurs en entrées, de faire un calcul simple et de renvoyer une valeur en sortie. Les calculs dépendent de paramètres propres à chaque perceptron.
+
+\myfigure{1}{
+	\tikzinput{fig_neurones_01}
+}
+
+
+
+Le calcul effectué par un perceptron se décompose en deux phases : un calcul par une fonction linéaire $f$, suivi d'une fonction d'activation $\phi$.
+
+\myfigure{1}{
+	\tikzinput{fig_neurones_02}
+}
+
+
+Détaillons chaque phase.
+\begin{itemize}
+	\item \textbf{Partie linéaire.} Le perceptron est d'abord muni de  \trouer{poids}\index{poids} $a_1,\ldots,a_n$
+	qui déterminent une fonction linéaire 
+	$$f(x_1,\ldots,x_n) = a_1 x_1 + a_2 x_2 + \cdots + a_n x_n.$$
+	\item \textbf{Fonction d'activation.}\index{fonction d'activation} La valeur renvoyée par la fonction linéaire $f$ est ensuite composée par une fonction d'activation $\phi$.
+	
+	\item \textbf{Sortie.} La valeur de sortie est donc $\phi(a_1 x_1 + a_2 x_2 + \cdots + a_n x_n)$.
+\end{itemize}
+
+Dans ce chapitre, la fonction d'activation sera (presque) toujours la fonction marche de Heaviside :
+$$\begin{cases}
+	H(x) = 1 & \text{ si } x \ge 0, \\
+	H(x) = 0  & \text{ si } x < 0. \\
+\end{cases}$$
+
+\myfigure{1}{
+	\tikzinput{fig_neurones_04}
+}
+
+
+
+Voici ce que fait un perceptron linéaire de poids $a_1,\ldots,a_n$ et de fonction d'activation la fonction marche de Heaviside :
+
+\myfigure{0.8}{
+	\tikzinput{fig_neurones_03}
+}
+
+
+On peut donc définir ce qu'est un perceptron. Un   \trouer{perceptron linéaire} à $n$ variables et de fonction d'activation la fonction marche de Heaviside est la donnée de $n$ coefficients réels $a_1,\ldots,a_n$ auxquels est associée la fonction $F : \Rr \to \Rr$ définie par $F = H \circ f$, c'est-à-dire :
+$$\begin{cases}
+	F(x_1,\ldots,x_n) = 1 & \text{ si } a_1 x_1 + a_2 x_2 + \cdots + a_n x_n \ge 0, \\
+	F(x_1,\ldots,x_n) = 0  & \text{ sinon.} \\
+\end{cases}$$
+
+
+
+\begin{exemple}{}{}
+	
+	Voici un perceptron à deux entrées. Il est défini par les poids $a=2$ et $b=3$.
+	
+	\myfigure{0.8}{
+		\tikzinput{fig_neurones_05}
+	}
+	
+	
+	\begin{itemize}
+		\item \textbf{Formule.}
+		
+		Notons $x$ et $y$ les deux réels en entrée.
+		La fonction linéaire $f$ est donc 
+		$$f(x,y) = 2x+3y.$$
+		
+		La valeur en sortie est donc :
+		$$\begin{cases}
+			F(x,y) = 1 & \text{ si } 2x+3y \ge 0 \\
+			F(x,y) = 0  & \text{ sinon.} \\
+		\end{cases}$$
+		
+		\myfigure{0.8}{
+			\tikzinput{fig_neurones_06}
+		}
+		
+		\item \textbf{\'Evaluation.} 
+		Utilisons ce perceptron comme une fonction. Que renvoie le perceptron pour la valeur d'entrée $(x,y) = (4,-1)$ ?
+		On calcule $f(x,y) = 2x+3y = 5$. Comme $f(x,y)\ge0$, alors la valeur de sortie est donc $F(x,y) = 1$.
+		
+		Recommençons avec $(x,y) = (-3,1)$. Cette fois $f(x,y) = -3 < 0$ donc $F(x,y) = 0$.
+		
+		L'entrée $(x,y) = (6,-4)$ est \og{}à la limite\fg{} car $f(x,y)=0$ ($0$ est l'abscisse critique pour la fonction marche de Heaviside).
+		On a $F(x,y) = 1$.
+		
+		\item \textbf{Valeurs de la fonction.}
+		
+		La fonction $F$ prend seulement deux valeurs : $0$ ou $1$. La frontière correspond aux points $(x,y)$ tels que
+		$f(x,y)=0$, c'est-à-dire à la droite $2x+3y=0$.  
+		Pour les points au-dessus de la droite (ou sur la droite) la fonction $F$ prend la valeur $1$ ;
+		pour les points en-dessous de la droite, la fonction $F$ vaut $0$.
+		
+		\myfigure{0.8}{
+			\tikzinput{fig_neurones_07}
+		}  
+		
+	\end{itemize}
+\end{exemple}
+
+\textbf{Notation.}
+
+Nous représentons un perceptron par une forme plus condensée : 
+sous la forme d'un   \trouer{neurone}, avec des poids sur les arêtes d'entrées. 
+Nous précisons en indice la fonction d'activation utilisée  $\phi$.
+Si le contexte est clair cette mention est omise.
+
+\myfigure{0.7}{
+	\tikzinput{fig_neurones_08}
+}  
+
+Voici le neurone à deux variables de l'exemple précédent.
+\myfigure{0.7}{
+	\tikzinput{fig_neurones_09}
+}  
+
+\begin{exemple}{}{}
+	Voici deux catégories de points : des ronds bleus et des carrés rouges. Comment trouver un perceptron qui les sépare ?
+	
+	\myfigure{0.7}{
+		\tikzinput{fig_neurones_10}
+	} 
+	
+	Il s'agit donc de trouver les deux poids $a$ et $b$ d'un perceptron, dont la fonction associée
+	$F$ vérifie $F(x,y)=1$ pour les coordonnées des carrés et $F(x,y)=0$ pour les ronds.
+	
+	\myfigure{0.7}{
+		\tikzinput{fig_neurones_11}
+	} 
+	
+	Trouvons une droite qui les sépare. Par exemple, la droite d'équation $4x-y=0$ sépare les ronds des carrés. On définit donc le neurone avec les poids $a=4$ et $b=-1$.
+	Si $(x,y)$ sont les coordonnées d'un carré alors on a bien $F(x,y)=1$ et pour un rond $F(x,y)=0$.
+	
+	\begin{center}
+		\begin{minipage}{0.35\textwidth}
+			\myfigure{0.5}{
+				\tikzinput{fig_neurones_12}
+			}
+		\end{minipage}
+		\begin{minipage}{0.45\textwidth}
+			\myfigure{0.6}{
+				\tikzinput{fig_neurones_13}
+			}
+		\end{minipage}
+	\end{center}
+	
+	
+\end{exemple}
