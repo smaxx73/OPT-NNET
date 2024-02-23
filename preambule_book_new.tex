@@ -52,7 +52,7 @@
 \newtcbtheorem[number within=chapter]{theoreme}{Théorème}%
 {colback=red!5,colframe=rouge!35!black,fonttitle=\bfseries}{th}
 
-\newtcbtheorem[number within=section]{proposition}{Proposition}%
+\newtcbtheorem[number within=chapter]{proposition}{Proposition}%
 {colback=orange!0,colframe=orange!35!black,fonttitle=\bfseries}{pr}
 
 \newtcbtheorem[number within=section]{corollaire}{Corollaire}%
@@ -88,3 +88,23 @@
 
 \usepackage{awesomebox}
 
+\newcommand{\evidence}[1]{{\textbf{\emph{#1}}}}
+%\newcommand{\trouer}[1]{{\textbf{\emph{#1}}}}
+
+%===================images tikz exo7 =====================================
+\usetikzlibrary{calc,shadows,arrows.meta,patterns,matrix}
+% --- Pour pré-compiler les images en pdf on utilise 'external'
+\usetikzlibrary{external}
+\newcommand{\tikzinput}[1]{%
+	%\tikzsetnextfilename{\import@path tikzcach/#1\cachsuffix}%
+	\input{figures/#1.tikz}%
+}
+\newcommand{\myfigure}[2]{% entrée : échelle, fichier(s) figure à inclure
+	\begin{center}\small
+		\tikzstyle{every picture}=[scale=1.1*#1]% mise en échelle + 10% (automatiquement annulé à la fin du groupe)
+		#2
+\end{center}}
+\definecolor{myred}{rgb}{0.93,0.26,0}
+\definecolor{myorange}{rgb}{0.73,0.36,0}
+
+\newcommand{\beameronly}[1]{}
