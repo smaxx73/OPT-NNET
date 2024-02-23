@@ -1,0 +1,110 @@
+\renewcommand{\thesection}{\Roman{section}} % I, II, III, IV, ...
+\renewcommand{\thesubsection}{\arabic{subsection}} % 1, 2, 3, 4, ...
+
+\usepackage[Sonny]{fncychap} %style de chapitre
+
+\usepackage{xcolor}
+\definecolor{vert}{RGB}{80,194,66}
+\definecolor{bleu}{RGB}{0,136,206}
+\definecolor{rouge}{RGB}{255,56,36}
+\definecolor{orange}{RGB}{255,153,0}
+\definecolor{violet}{RGB}{163,73,164}
+\definecolor{jaune}{RGB}{255,204,0}
+\definecolor{gris}{RGB}{128,128,128}
+\definecolor{eggplant}{cmyk}{0.04, 0.24, 0, 0.47}
+%rouge très foncé :
+\definecolor{rougefonce}{RGB}{139,0,0}
+
+
+
+\usepackage[explicit,nobottomtitles*]{titlesec}
+
+\titleformat{\section}
+{\normalfont\Large\bfseries\sffamily}
+{\llap{\colorbox{rougefonce}{\makebox[3em][r]{\textcolor{white}
+				{\thesection -}}}\hspace{1em}}}{0pt}{#1}
+
+\titleformat{\subsection}
+{\color{rougefonce}\large\bfseries\sffamily}
+{\thesubsection.}{1em}{#1}
+
+\definecolor{titlecolour}{RGB}{139,0,0} % Remplacez 0,0,0 par les valeurs RGB de votre choix
+
+
+\titleformat{\chapter}[display]
+{\bfseries\color{titlecolour}}
+{\parbox[c][20mm][c]{40mm}{}
+	\hfill
+	\rotatebox[origin=c]{90}{\normalfont\color{black}\Large{\textsf{\chaptertitlename}}}
+	\hspace{2mm}%
+	{\colorbox{titlecolour}{\parbox[c][28mm][c]{28mm}{\centering\color{white}\fontsize{80}{80}\selectfont\thechapter}}}}
+{10pt}
+{\titlerule[4pt]\vskip3pt\titlerule[2pt]\vskip4pt\filcenter\Huge\sffamily #1}
+
+
+
+
+
+% environnements théorèmes avec tcolorbox
+
+\usepackage[most]{tcolorbox} % pour les boîtes
+
+\newtcbtheorem[number within=chapter]{theoreme}{Théorème}%
+{colback=red!5,colframe=rouge!35!black,fonttitle=\bfseries}{th}
+
+\newtcbtheorem[number within=chapter]{proposition}{Proposition}%
+{colback=orange!0,colframe=orange!35!black,fonttitle=\bfseries}{pr}
+
+\newtcbtheorem[number within=section]{corollaire}{Corollaire}%
+{colback=orange!0,colframe=orange!35!black,fonttitle=\bfseries}{co}
+
+\newtcbtheorem[number within=section]{lemme}{Lemme}%
+{colback=orange!0,colframe=orange!35!black,fonttitle=\bfseries}{le}
+
+\newtcbtheorem[number within=section]{definition}{Définition}%
+{boxrule=1pt, arc=1mm, colback=vert!0,colframe=vert!60!black,fonttitle=\bfseries}{de}
+
+
+\tcbset {
+	base/.style={
+		breakable,
+		arc = 0mm,
+		bottomtitle=0.5mm,
+		boxrule=0mm,
+		colbacktitle=black!10!white,
+		coltitle=black,
+		fonttitle=\bfseries,
+		left=2.5mm,
+		leftrule=3mm,
+		right=3.5mm,
+		title={#1},
+		toptitle=0.75mm
+	}
+}
+
+\definecolor{brandblue}{rgb}{0.34,0.7,1}
+
+\newtcbtheorem[number within=subsection]{exemple}{Exemple}{base={#1}}{ex}
+
+\usepackage{awesomebox}
+
+\newcommand{\evidence}[1]{{\textbf{\emph{#1}}}}
+%\newcommand{\trouer}[1]{{\textbf{\emph{#1}}}}
+
+%===================images tikz exo7 =====================================
+\usetikzlibrary{calc,shadows,arrows.meta,patterns,matrix}
+% --- Pour pré-compiler les images en pdf on utilise 'external'
+\usetikzlibrary{external}
+\newcommand{\tikzinput}[1]{%
+	%\tikzsetnextfilename{\import@path tikzcach/#1\cachsuffix}%
+	\input{figures/#1.tikz}%
+}
+\newcommand{\myfigure}[2]{% entrée : échelle, fichier(s) figure à inclure
+	\begin{center}\small
+		\tikzstyle{every picture}=[scale=1.1*#1]% mise en échelle + 10% (automatiquement annulé à la fin du groupe)
+		#2
+\end{center}}
+\definecolor{myred}{rgb}{0.93,0.26,0}
+\definecolor{myorange}{rgb}{0.73,0.36,0}
+
+\newcommand{\beameronly}[1]{}
