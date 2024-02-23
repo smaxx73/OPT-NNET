@@ -1016,231 +1016,231 @@ Sur les trois dessins ci-dessous, on a dessiné les lignes de niveau d'une fonct
 \end{center}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Différentiation automatique}
-
-\index{différentiation automatique}
-
-Dans le chapitre \og{}Dérivée\fg{}, nous avons vu comment calculer la dérivée d'une fonction composée à l'aide de son graphe de calcul. Nous allons faire de même pour les dérivées partielles des fonctions de plusieurs variables afin de calculer le gradient d'une fonction définie par un réseau de neurones.
-
-%--------------------------------------------------------------------
-\subsection{Différentiation automatique}
-
-\textbf{Graphe de calcul.}\index{graphe de calcul}
-Voici le graphe de calcul d'une fonction $f$ de deux variables (schéma de principe à gauche, évaluation en $(x_0,y_0)$ à droite).
-
-\myfigure{0.6}{
-	\tikzinput{fig-diffauto-01}\qquad\qquad\qquad
-	\tikzinput{fig-diffauto-02}
-}
-
-
-\bigskip
-\textbf{Dérivées locales.}
-Voici la règle pour les dérivées locales à rajouter à chaque branche (entre crochets).
-\myfigure{0.6}{
-	\tikzinput{fig-diffauto-03}
-}
-On note $\partial_x f$ comme raccourci de la fonction $\frac{\partial f}{\partial x}$.
-
-
-\bigskip
-\textbf{Dérivées partielles.}
-On obtient chacune des dérivées partielles d'une composition $F$ comme le produit des dérivées locales le long des branches allant de la sortie $F(x,y)$ vers l'entrée $x$ (ou $y$).
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-04}
-}
-
-
-\bigskip
-\textbf{Formule mathématique.}
-Soit $f : \Rr^2 \to \Rr$ et $g : \Rr \to \Rr$. 
-
-\myfigure{0.6}{
-	\tikzinput{fig-diffauto-05}
-}
-La composition $F = g \circ f : \Rr^2 \to \Rr$ correspond au graphe de calcul dessiné ci-dessous :
-\myfigure{0.6}{
-	\tikzinput{fig-diffauto-06}
-}
-
-On a donc :
-$$F(x,y) = g \circ f (x,y) = g \big( f(x,y) \big).$$
-Les dérivées partielles de $F$ sont données par les formules :
-\mybox{$\displaystyle
-	\begin{array}{c}
-		\displaystyle \frac{\partial F}{\partial x}(x_0,y_0) = \frac{\partial f}{\partial x}(x_0,y_0) \cdot g'\big(f(x_0,y_0)\big)\\[4ex]
-		\displaystyle \frac{\partial F}{\partial y}(x_0,y_0) = \frac{\partial f}{\partial y}(x_0,y_0) \cdot g'\big(f(x_0,y_0)\big)
-	\end{array}
-	$}
-
-La preuve de la formule pour $\frac{\partial F}{\partial x}(x_0,y_0)$ découle directement de la formule de la dérivée d'une composition pour la fonction d'une seule variable $x \mapsto F(x,y_0)$. Il en est de même pour l'autre dérivée partielle.
-Ces formules justifient notre règle de calcul : la dérivée partielle est le produit des dérivées locales le long de chacune des branches.
-
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-07}
-}
-
-
-\bigskip
-\textbf{Addition et multiplication.}
-
-Dans le cas $f(x,y) = x + y$ et $f(x,y)= x \times y$, on retrouve les dérivées locales déjà utilisées dans le cas d'une seule variable.
-
-\myfigure{0.6}{
-	\tikzinput{fig-diffauto-08}\qquad\qquad\qquad
-	\tikzinput{fig-diffauto-09}
-}
-
-
-
-\bigskip
-\textbf{Exemple.}
-Soit $F(x,y) = \ln(x^2y+\sin y)$. On souhaite calculer $\grad F(3,2)$.
-Nous allons montrer comment calculer $\grad F(x_0,y_0)$ pour $x_0$ et $y_0$ quelconques, puis nous reprendrons les calculs depuis le début dans le cas $(x_0,y_0)=(3,2)$.
-
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-10}
-}
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-11}
-}
-
-On obtient les dérivées partielles comme produit des dérivées locales :
-$$\frac{\partial F}{\partial x} (x_0,y_0) = \left[ \frac{1}{z_0} \right] \times [2x_0y_0] = \frac{2x_0y_0}{x_0^2y_0+\sin y_0},$$
-$$\frac{\partial F}{\partial y} (x_0,y_0) = \left[ \frac{1}{z_0} \right] \times [x_0^2 + \cos y_0] = \frac{x_0^2 + \cos y_0}{x_0^2y_0+\sin y_0}.$$
-
-
-
-Dans la pratique, pour les réseaux de neurones, on ne calcule jamais l'expression formelle de $\grad F(x_0,y_0)$ mais seulement des gradients en des valeurs $(x_0,y_0)$ données. On reprend donc à chaque fois les étapes ci-dessus mais uniquement pour des valeurs numériques.
-
-
-
-La première étape est de calculer les valeurs des fonctions (de la gauche vers la droite).
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-12}
-}
-
-La seconde étape est de calculer toutes les dérivées locales. On utilise les valeurs de l'étape précédente et la connaissance des formules de chacune des dérivées des fonctions élémentaires (ici $\frac{\partial f}{\partial x}$, $\frac{\partial f}{\partial y}$ et $\frac{\dd \ln}{\dd z}$).
-
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-13}
-}
-
-On calcule le produit des dérivées locales le long des arêtes. 
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-14}
-}
-
-On obtient les dérivées partielles :
-{\small
-	$$\frac{\partial F}{\partial x} (3,2) = \left[ \frac{1}{18+\sin 2} \right] \times [12] = \frac{12}{18 + \sin 2}
-	\qquad \text{ et } \qquad 
-	\frac{\partial F}{\partial y} (3,2) = \left[ \frac{1}{18+\sin 2} \right] \times [9 + \cos 2] = \frac{9 + \cos 2}{18+\sin 2}.$$
-}
-
-\bigskip
-\textbf{Règle générale.}
-Dans le cas de $n$ entrées $(x_1,\ldots,x_n)$, la règle des dérivées locales se généralise naturellement : on associe à la branche numéro $i$ la dérivée locale $\frac{\partial f}{\partial x_i}$.
-
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-15}
-}
-
-
-%--------------------------------------------------------------------
-\subsection{Différentiation automatique (suite)}
-
-
-\textbf{Graphe de calcul.}
-Voici le graphe de calcul d'une situation que l'on a déjà rencontrée dans le cas d'une seule variable, mais dont la formule se justifie par les fonctions de deux variables.
-Il s'agit du graphe de calcul de $F(t) = f\big( u(t), v(t) \big)$ où
-$u : \Rr \to \Rr$, $v : \Rr \to \Rr$ et $f : \Rr^2 \to \Rr$. L'objectif est de calculer $F'(t)$.
-
-\myfigure{0.55}{
-	\tikzinput{fig-diffauto-21}\qquad
-	\tikzinput{fig-diffauto-22}
-}
-
-\bigskip
-\textbf{Dérivées locales.}
-On calcule les dérivées locales comme d'habitude.
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-23}
-}
-
-\bigskip
-\textbf{Dérivée.}
-La dérivée s'obtient en deux étapes :
-\begin{itemize}
-	\item on calcule le produit des dérivées locales le long des chemins partant de chaque arête sortante jusqu'à la sortie,
-	\item puis on calcule la somme de ces produits.
-\end{itemize}
-
-\myfigure{0.9}{
-	\tikzinput{fig-diffauto-24}
-}
-
-\bigskip
-\textbf{Formule mathématique.}
-La situation est cette fois la suivante :
-\myfigure{0.6}{
-	\tikzinput{fig-diffauto-25}
-}
-La formule de dérivation de la composition de
-$$F(t) = f\big( u(t), v(t) \big)$$
-est :
-\mybox{$\displaystyle
-	F'(t_0) = u'(t_0) \frac{\partial f}{\partial x}(u(t_0),v(t_0)) \  + \  v'(t_0) \frac{\partial f}{\partial y}(u(t_0),v(t_0)) 
-	$}
-
-
-\bigskip
-\textbf{Exemple.}
-Soit $F(t) = \sqrt{\exp(t)\sin(t)}$. On souhaite calculer $F'(1)$. On commence par calculer $F'(t_0)$ en général avant de tout reprendre dans la cas $t_0=1$.
-Voici le graphe de calcul :
-\myfigure{0.6}{
-	\tikzinput{fig-diffauto-26}
-}
-Une fois complété avec les dérivées locales cela donne :
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-27}
-}
-On trouve ainsi :
-$$F'(t_0) = \left[\frac{1}{2\sqrt{z_0}}\right]\cdot[y_0]\cdot[\exp t_0]
-\  + \  \left[\frac{1}{2\sqrt{z_0}}\right]\cdot[x_0]\cdot[\cos t_0]
-$$
-et donc 
-$$F'(t_0) = \frac{\exp t_0 \cdot (\sin t_0 + \cos t_0)}{2\sqrt{\exp t_0 \sin t_0}}.$$
-
-Reprenons tout depuis le début pour calculer $F'(1)$ en oubliant que l'on a déjà trouvé la formule générale :
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-28}
-}
-On trouve ainsi :
-$$F'(1) = \left[\frac{1}{2\sqrt{e\sin(1)}}\right]\cdot[\sin(1)]\cdot[e]
-\  + \  \left[\frac{1}{2\sqrt{e\sin(1)}}\right]\cdot[e]\cdot[\cos(1)]
-$$
-et donc 
-$$F'(1) = \frac{e (\sin(1)+\cos(1))}{2\sqrt{e\sin(1)}}.$$
-
-
-\bigskip
-\textbf{Règle générale.}
-Dans le cas de $n$ sorties, on somme sur toutes les arêtes sortantes comme dans la situation ci-dessous.
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-29}
-}
-La fonction est $F(t) = t + (\ln t)^2 + \frac{1}{\sin t}$ et en sommant on trouve bien $F'(t) = 1 + \frac{2\ln t}{t} - \frac{\cos t}{\sin^2 t}$.
-
-
-\bigskip
-\textbf{Un autre exemple.}
-On termine par un exemple plus compliqué : on souhaite calculer la dérivée de 
-$$F(t) = t^2 \cdot \ln t \cdot \ln(\ln t).$$
-Voici le graphe de calcul que l'on utilise (noter qu'avec ce graphe, on ne calcule qu'une seule fois $\ln t$ dont le résultat est réutilisé pour calculer $\ln(\ln t)$).
-
-\myfigure{0.8}{
-	\tikzinput{fig-diffauto-30}
-}
-
-La dérivée s'obtient comme somme sur tous les chemins de la sortie à l'entrée.
+%\section{Différentiation automatique}
+%
+%\index{différentiation automatique}
+%
+%Dans le chapitre \og{}Dérivée\fg{}, nous avons vu comment calculer la dérivée d'une fonction composée à l'aide de son graphe de calcul. Nous allons faire de même pour les dérivées partielles des fonctions de plusieurs variables afin de calculer le gradient d'une fonction définie par un réseau de neurones.
+%
+%%--------------------------------------------------------------------
+%\subsection{Différentiation automatique}
+%
+%\textbf{Graphe de calcul.}\index{graphe de calcul}
+%Voici le graphe de calcul d'une fonction $f$ de deux variables (schéma de principe à gauche, évaluation en $(x_0,y_0)$ à droite).
+%
+%\myfigure{0.6}{
+%	\tikzinput{fig-diffauto-01}\qquad\qquad\qquad
+%	\tikzinput{fig-diffauto-02}
+%}
+%
+%
+%\bigskip
+%\textbf{Dérivées locales.}
+%Voici la règle pour les dérivées locales à rajouter à chaque branche (entre crochets).
+%\myfigure{0.6}{
+%	\tikzinput{fig-diffauto-03}
+%}
+%On note $\partial_x f$ comme raccourci de la fonction $\frac{\partial f}{\partial x}$.
+%
+%
+%\bigskip
+%\textbf{Dérivées partielles.}
+%On obtient chacune des dérivées partielles d'une composition $F$ comme le produit des dérivées locales le long des branches allant de la sortie $F(x,y)$ vers l'entrée $x$ (ou $y$).
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-04}
+%}
+%
+%
+%\bigskip
+%\textbf{Formule mathématique.}
+%Soit $f : \Rr^2 \to \Rr$ et $g : \Rr \to \Rr$. 
+%
+%\myfigure{0.6}{
+%	\tikzinput{fig-diffauto-05}
+%}
+%La composition $F = g \circ f : \Rr^2 \to \Rr$ correspond au graphe de calcul dessiné ci-dessous :
+%\myfigure{0.6}{
+%	\tikzinput{fig-diffauto-06}
+%}
+%
+%On a donc :
+%$$F(x,y) = g \circ f (x,y) = g \big( f(x,y) \big).$$
+%Les dérivées partielles de $F$ sont données par les formules :
+%\mybox{$\displaystyle
+%	\begin{array}{c}
+%		\displaystyle \frac{\partial F}{\partial x}(x_0,y_0) = \frac{\partial f}{\partial x}(x_0,y_0) \cdot g'\big(f(x_0,y_0)\big)\\[4ex]
+%		\displaystyle \frac{\partial F}{\partial y}(x_0,y_0) = \frac{\partial f}{\partial y}(x_0,y_0) \cdot g'\big(f(x_0,y_0)\big)
+%	\end{array}
+%	$}
+%
+%La preuve de la formule pour $\frac{\partial F}{\partial x}(x_0,y_0)$ découle directement de la formule de la dérivée d'une composition pour la fonction d'une seule variable $x \mapsto F(x,y_0)$. Il en est de même pour l'autre dérivée partielle.
+%Ces formules justifient notre règle de calcul : la dérivée partielle est le produit des dérivées locales le long de chacune des branches.
+%
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-07}
+%}
+%
+%
+%\bigskip
+%\textbf{Addition et multiplication.}
+%
+%Dans le cas $f(x,y) = x + y$ et $f(x,y)= x \times y$, on retrouve les dérivées locales déjà utilisées dans le cas d'une seule variable.
+%
+%\myfigure{0.6}{
+%	\tikzinput{fig-diffauto-08}\qquad\qquad\qquad
+%	\tikzinput{fig-diffauto-09}
+%}
+%
+%
+%
+%\bigskip
+%\textbf{Exemple.}
+%Soit $F(x,y) = \ln(x^2y+\sin y)$. On souhaite calculer $\grad F(3,2)$.
+%Nous allons montrer comment calculer $\grad F(x_0,y_0)$ pour $x_0$ et $y_0$ quelconques, puis nous reprendrons les calculs depuis le début dans le cas $(x_0,y_0)=(3,2)$.
+%
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-10}
+%}
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-11}
+%}
+%
+%On obtient les dérivées partielles comme produit des dérivées locales :
+%$$\frac{\partial F}{\partial x} (x_0,y_0) = \left[ \frac{1}{z_0} \right] \times [2x_0y_0] = \frac{2x_0y_0}{x_0^2y_0+\sin y_0},$$
+%$$\frac{\partial F}{\partial y} (x_0,y_0) = \left[ \frac{1}{z_0} \right] \times [x_0^2 + \cos y_0] = \frac{x_0^2 + \cos y_0}{x_0^2y_0+\sin y_0}.$$
+%
+%
+%
+%Dans la pratique, pour les réseaux de neurones, on ne calcule jamais l'expression formelle de $\grad F(x_0,y_0)$ mais seulement des gradients en des valeurs $(x_0,y_0)$ données. On reprend donc à chaque fois les étapes ci-dessus mais uniquement pour des valeurs numériques.
+%
+%
+%
+%La première étape est de calculer les valeurs des fonctions (de la gauche vers la droite).
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-12}
+%}
+%
+%La seconde étape est de calculer toutes les dérivées locales. On utilise les valeurs de l'étape précédente et la connaissance des formules de chacune des dérivées des fonctions élémentaires (ici $\frac{\partial f}{\partial x}$, $\frac{\partial f}{\partial y}$ et $\frac{\dd \ln}{\dd z}$).
+%
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-13}
+%}
+%
+%On calcule le produit des dérivées locales le long des arêtes. 
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-14}
+%}
+%
+%On obtient les dérivées partielles :
+%{\small
+%	$$\frac{\partial F}{\partial x} (3,2) = \left[ \frac{1}{18+\sin 2} \right] \times [12] = \frac{12}{18 + \sin 2}
+%	\qquad \text{ et } \qquad 
+%	\frac{\partial F}{\partial y} (3,2) = \left[ \frac{1}{18+\sin 2} \right] \times [9 + \cos 2] = \frac{9 + \cos 2}{18+\sin 2}.$$
+%}
+%
+%\bigskip
+%\textbf{Règle générale.}
+%Dans le cas de $n$ entrées $(x_1,\ldots,x_n)$, la règle des dérivées locales se généralise naturellement : on associe à la branche numéro $i$ la dérivée locale $\frac{\partial f}{\partial x_i}$.
+%
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-15}
+%}
+%
+%
+%%--------------------------------------------------------------------
+%\subsection{Différentiation automatique (suite)}
+%
+%
+%\textbf{Graphe de calcul.}
+%Voici le graphe de calcul d'une situation que l'on a déjà rencontrée dans le cas d'une seule variable, mais dont la formule se justifie par les fonctions de deux variables.
+%Il s'agit du graphe de calcul de $F(t) = f\big( u(t), v(t) \big)$ où
+%$u : \Rr \to \Rr$, $v : \Rr \to \Rr$ et $f : \Rr^2 \to \Rr$. L'objectif est de calculer $F'(t)$.
+%
+%\myfigure{0.55}{
+%	\tikzinput{fig-diffauto-21}\qquad
+%	\tikzinput{fig-diffauto-22}
+%}
+%
+%\bigskip
+%\textbf{Dérivées locales.}
+%On calcule les dérivées locales comme d'habitude.
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-23}
+%}
+%
+%\bigskip
+%\textbf{Dérivée.}
+%La dérivée s'obtient en deux étapes :
+%\begin{itemize}
+%	\item on calcule le produit des dérivées locales le long des chemins partant de chaque arête sortante jusqu'à la sortie,
+%	\item puis on calcule la somme de ces produits.
+%\end{itemize}
+%
+%\myfigure{0.9}{
+%	\tikzinput{fig-diffauto-24}
+%}
+%
+%\bigskip
+%\textbf{Formule mathématique.}
+%La situation est cette fois la suivante :
+%\myfigure{0.6}{
+%	\tikzinput{fig-diffauto-25}
+%}
+%La formule de dérivation de la composition de
+%$$F(t) = f\big( u(t), v(t) \big)$$
+%est :
+%\mybox{$\displaystyle
+%	F'(t_0) = u'(t_0) \frac{\partial f}{\partial x}(u(t_0),v(t_0)) \  + \  v'(t_0) \frac{\partial f}{\partial y}(u(t_0),v(t_0)) 
+%	$}
+%
+%
+%\bigskip
+%\textbf{Exemple.}
+%Soit $F(t) = \sqrt{\exp(t)\sin(t)}$. On souhaite calculer $F'(1)$. On commence par calculer $F'(t_0)$ en général avant de tout reprendre dans la cas $t_0=1$.
+%Voici le graphe de calcul :
+%\myfigure{0.6}{
+%	\tikzinput{fig-diffauto-26}
+%}
+%Une fois complété avec les dérivées locales cela donne :
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-27}
+%}
+%On trouve ainsi :
+%$$F'(t_0) = \left[\frac{1}{2\sqrt{z_0}}\right]\cdot[y_0]\cdot[\exp t_0]
+%\  + \  \left[\frac{1}{2\sqrt{z_0}}\right]\cdot[x_0]\cdot[\cos t_0]
+%$$
+%et donc 
+%$$F'(t_0) = \frac{\exp t_0 \cdot (\sin t_0 + \cos t_0)}{2\sqrt{\exp t_0 \sin t_0}}.$$
+%
+%Reprenons tout depuis le début pour calculer $F'(1)$ en oubliant que l'on a déjà trouvé la formule générale :
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-28}
+%}
+%On trouve ainsi :
+%$$F'(1) = \left[\frac{1}{2\sqrt{e\sin(1)}}\right]\cdot[\sin(1)]\cdot[e]
+%\  + \  \left[\frac{1}{2\sqrt{e\sin(1)}}\right]\cdot[e]\cdot[\cos(1)]
+%$$
+%et donc 
+%$$F'(1) = \frac{e (\sin(1)+\cos(1))}{2\sqrt{e\sin(1)}}.$$
+%
+%
+%\bigskip
+%\textbf{Règle générale.}
+%Dans le cas de $n$ sorties, on somme sur toutes les arêtes sortantes comme dans la situation ci-dessous.
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-29}
+%}
+%La fonction est $F(t) = t + (\ln t)^2 + \frac{1}{\sin t}$ et en sommant on trouve bien $F'(t) = 1 + \frac{2\ln t}{t} - \frac{\cos t}{\sin^2 t}$.
+%
+%
+%\bigskip
+%\textbf{Un autre exemple.}
+%On termine par un exemple plus compliqué : on souhaite calculer la dérivée de 
+%$$F(t) = t^2 \cdot \ln t \cdot \ln(\ln t).$$
+%Voici le graphe de calcul que l'on utilise (noter qu'avec ce graphe, on ne calcule qu'une seule fois $\ln t$ dont le résultat est réutilisé pour calculer $\ln(\ln t)$).
+%
+%\myfigure{0.8}{
+%	\tikzinput{fig-diffauto-30}
+%}
+%
+%La dérivée s'obtient comme somme sur tous les chemins de la sortie à l'entrée.
