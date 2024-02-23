@@ -133,3 +133,17 @@
 		\end{tikzpicture}  
 	\end{center}
 }  
+
+\usepackage{varwidth}
+\tikzset{
+	block/.style = {
+		minimum height=1em,
+		inner xsep=.8em, inner ysep=.45em,
+		draw=black, thick, %rounded corners,
+		execute at begin node={\begin{varwidth}{\linewidth}},
+			execute at end node={\end{varwidth}}
+	},
+	inline/.style = {
+		inner sep=.35em, draw=black, thick,
+	}
+}
