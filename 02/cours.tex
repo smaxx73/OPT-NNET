@@ -29,7 +29,7 @@ Noter que $\dd f(x_0)$ est une application de $\Rr^n$ vers $\Rr$ (comme $f$), et
 \bigskip
 
 De même qu'en une variable, si une fonction est dérivable, alors elle est continue.
-\begin{proposition}{}{prop:diffcont}
+\begin{proposition}{}{diffcont}
 	Si $f$ est différentiable en $x_0 \in \Rr^n$, alors $f$ est continue en $x_0$.
 \end{proposition}
 
@@ -53,7 +53,7 @@ De même qu'en une variable, si une fonction est dérivable, alors elle est cont
 \subsection{Différentielle}
 
 
-\begin{proposition}{}{prop:differ}
+\begin{proposition}{}{differ}
 	Si $f : \Rr^n \to \Rr$ est différentiable en $x_0 \in \Rr^n$, alors ses dérivées partielles existent et on a :
 	$$
 	\dd f(x_0)(h) = 
@@ -164,7 +164,7 @@ Pour montrer qu'une fonction est différentiable, on peut utiliser que la somme,
 \bigskip
 \evidence{Dérivées partielles.}
 
-On a vu dans la proposition \ref{prop:differ} que si $f : \Rr^2 \to \Rr$ est différentiable en $(x_0,y_0)$, alors
+On a vu dans la proposition \ref{pr:differ} que si $f : \Rr^2 \to \Rr$ est différentiable en $(x_0,y_0)$, alors
 $$\dd f (x_0,y_0) (1,0) = \frac{\partial f}{\partial x}(x_0,y_0)
 \qquad \text{ et } \qquad
 \dd f (x_0,y_0) (0,1) = \frac{\partial f}{\partial y}(x_0,y_0).$$
@@ -298,7 +298,7 @@ Dans la pratique, les fonctions seront souvent de classe $\mathcal{C}^1$, ce qui
 On peut bien sûr limiter la définition à un ouvert. Par exemple, si $U$ un ouvert de $\Rr^2$, $f : U \to \Rr$ sera de classe $\mathcal{C}^1$ sur $U$ si $\frac{\partial f}{\partial x}$ et $\frac{\partial f}{\partial y}$ existent et sont continues sur $U$.
 
 
-\begin{theoreme}{Condition suffisante de différentiabilité}{th:foncc1}
+\begin{theoreme}{Condition suffisante de différentiabilité}{foncc1}
 	Si $f$ est de classe $\mathcal{C}^1$, alors $f$ est différentiable.
 \end{theoreme}
 
@@ -375,7 +375,7 @@ $$\lim_{(x,y)\to(0,0)}\frac{g(x,y)}{\|(x,y)\|^n}=0.$$
 
 \begin{itemize}
 	\item Les équivalences sont issues des définitions.
-	\item Les implications viennent du théorème \ref{th:foncc1}, de la proposition \ref{prop:diffcont} et de la proposition \ref{prop:differ}.
+	\item Les implications viennent du théorème \ref{th:foncc1}, de la proposition \ref{pr:diffcont} et de la proposition \ref{pr:differ}.
 	\item Les implications inverses sont fausses : voir les exemples ci-dessous.
 \end{itemize}
 
