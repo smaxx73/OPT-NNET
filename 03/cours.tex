@@ -1609,10 +1609,11 @@ Dans le cas de plusieurs arêtes sortantes, il s'agit de faire une somme comme o
 \index{descente de gradient!retropropagation@rétropropagation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Principe de la rétropropagation}
+
+\section{Apprentissage machine et principe de rétropropagation}
 
 La rétropropagation, c'est la descente de gradient appliquée aux réseaux de neurones. Nous allons étudier des problèmes variés et analyser les solutions produites par des réseaux de neurones.
-	
+
 Voici un jeu de données : des ronds bleus et des carrés rouges.
 Nous souhaitons trouver un modèle simple qui caractérise ces données.
 
@@ -1626,33 +1627,44 @@ Plus exactement, nous souhaiterions pouvoir dire pour chaque point du plan s'il 
 Nous allons revoir pas à pas l'utilisation d'un réseau de neurones pour résoudre un problème et traiterons en particulier l'exemple ci-dessus.
 
 %--------------------------------------------------------------------
-\subsection{Objectif du réseau}
+\subsection{Cadre général et vocabulaire}
+
+Avant de commencer, clarifions quelques notions essentielles qui seront utilisées tout au long de ce chapitre.
 
 \begin{itemize}
-	\item Soit $\mathcal{R}$ un réseau de neurones. Celui-ci est défini par son architecture (le nombre de couches, le nombre de neurones par couche), les fonctions d'activation et l'ensemble $P = (a_1,a_2,\ldots)$ des poids de tous les neurones.
+	\item \textbf{Architecture du réseau.} Soit $\mathcal{R}$ un réseau de neurones. Celui-ci est défini par son architecture (le nombre de couches, le nombre de neurones par couche), les fonctions d'activation et l'ensemble $P = (a_1,a_2,\ldots)$ des poids de tous les neurones.
 	
-	\item \`A ce réseau $\mathcal{R}$ on associe une fonction $F : \Rr^n \to \Rr^p$ où $n$ est la dimension des entrées (de la première couche) et $p$ le nombre de neurones de la couche de sortie.
+	\item \textbf{Fonction associée.} \`A ce réseau $\mathcal{R}$ on associe une fonction $F : \Rr^n \to \Rr^p$ où $n$ est la dimension des entrées (de la première couche) et $p$ le nombre de neurones de la couche de sortie.
 	Dans ce chapitre, nous supposerons qu'il n'y a qu'une seule sortie, c'est-à-dire $p=1$ et $F : \Rr^n \to \Rr$.
 	
 	\myfigure{0.8}{
 		\tikzinput{fig_retro_04}
 	} 
 	
+	\item \textbf{Données disponibles.} On dispose d'un ensemble total de données $(X_i,z_i)$ (pour $i=1,\ldots,N_{\text{total}}$) où $X_i \in \Rr^n$ est une \trouer{entrée} (de la forme $X=(x_1,\ldots,x_n)$) et $z_i \in \Rr$ est la \trouer{sortie attendue} pour cette entrée.
 	
-	\item On dispose de données $(X_i,z_i)$ (pour $i=1,\ldots,N$) où $X_i \in \Rr^n$ est une \trouer{entrée} (de la forme $X=(x_1,\ldots,x_n)$) et $z_i \in \Rr$ est la \trouer{sortie attendue} pour cette entrée.
+	\item \textbf{Séparation des données.} On divise ces données en deux ensembles disjoints :
+	\begin{itemize}
+		\item Les \trouer{données d'entraînement} $(X_i,z_i)$ pour $i=1,\ldots,N$ : elles servent à calculer les poids du réseau.
+		\item Les \trouer{données de test} : elles servent à évaluer la capacité du réseau à généraliser à de nouvelles situations.
+	\end{itemize}
+	Cette séparation est cruciale pour éviter le \trouer{sur-apprentissage} (nous y reviendrons).
 	
-	\item Le but est de trouver les poids du réseau afin que la fonction $F$ qui lui est associée vérifie :
-	$$F(X_i) \simeq z_i \quad \text{pour tout} \quad i=1,\ldots,N.$$ 
+	\item \textbf{Objectif double.} Le but est de trouver les poids du réseau afin que la fonction $F$ qui lui est associée vérifie :
+	\begin{enumerate}
+		\item \textbf{Modélisation :} $F(X_i) \simeq z_i$ pour toutes les données d'entraînement $i=1,\ldots,N$.
+		\item \textbf{Généralisation :} $F(X) \simeq z$ pour de nouvelles données jamais vues pendant l'entraînement.
+	\end{enumerate}
 	
-	\item Pour mesurer précisément la performance de l'approximation, on définit une \trouer{fonction erreur} :
-	$$E = \frac{1}N \sum_{i=1}^N E_i \qquad \text{ avec } \qquad \quad E_i = \big( F(X_i) - z_i \big)^2.$$
+	\item \textbf{Fonction erreur.} Pour mesurer précisément la performance de l'approximation sur les données d'entraînement, on définit une \trouer{fonction erreur} :
+	$$E = \frac{1}{N} \sum_{i=1}^N E_i \qquad \text{ avec } \qquad E_i = \big( F(X_i) - z_i \big)^2.$$
 \end{itemize}
 
 
 \begin{exemple}{}{}
 	Nous traitons l'exemple donné en introduction.
 	\begin{itemize}
-		\item On décide de construire le réseau le plus simple possible : avec un seul neurone. Cela correspond à séparer les points du plan selon une droite.
+		\item \textbf{Architecture.} On décide de construire le réseau le plus simple possible : avec un seul neurone. Cela correspond à séparer les points du plan selon une droite.
 		On choisit la fonction d'activation $\sigma$.
 		La dimension de l'entrée est $2$ et celle la sortie est $1$.
 		Il y a $3$ poids $(a,b,c)$ à calculer pour terminer le paramétrage du réseau.
@@ -1661,29 +1673,30 @@ Nous allons revoir pas à pas l'utilisation d'un réseau de neurones pour résou
 			\tikzinput{fig_retro_05}
 		}   
 		
-		\item Pour chaque triplet de poids $(a,b,c)$ notre réseau définit une fonction $F : \Rr^2 \to \Rr$
+		\item \textbf{Fonction associée.} Pour chaque triplet de poids $(a,b,c)$ notre réseau définit une fonction $F : \Rr^2 \to \Rr$
 		qui est en fait ici :
 		$$F(x,y) = \sigma(ax+by+c)$$
 		avec $\sigma(t) = \frac{1}{1+e^{-t}}$.
 		
 		
 		
-		\item Nos données sont les points rouges et bleus.
+		\item \textbf{Données.} Nos données sont les points rouges et bleus.
 		Une entrée $X_i$ est donc constituée des coordonnées $(x_i,y_i)$ d'un point et la sortie attendue pour ce point est $z_i = 0$ (pour les points bleus) et $z_i = 1$ (pour les points rouges).
 		Voici les coordonnées des ronds bleus (sortie attendue $z_i = 0$) :
 		$$(0,3),\ (1,1.5),\ (1,4),\ (1.5,2.5),\ (2,2.5),\ (3,3.5),\ (3.5,3.25),\ (4,3),\ (4,4),\ (5,4)$$
 		et des carrés rouges (sortie attendue $z_i = 1$) :
 		$$(1,1),\ (2,0.5),\ (2,2),\ (3,1.5),\ (3,2.75),\ (4,1),\ (4,2.5),\ (4.5,3),\ (5,1),\ (5,2.25).$$  
 		
+		Dans cet exemple introductif, nous utiliserons toutes ces données pour l'entraînement. Nous verrons plus loin (exemple de la section 2.5) pourquoi il est important de garder des données de test séparées.
 		
-		\item Comment définir les poids $(a,b,c)$ afin que $F(x_i,y_i) \simeq 0$ pour tous les ronds bleus et que $F(x_i,y_i)\simeq1$ pour tous les carrés rouges ? Si on sait trouver de tels poids alors on pourra colorier (presque) n'importe quel point $(x,y)$ du plan (et pas seulement nos ronds et nos carrés) : si $F(x,y) \simeq 0$, on coloriera le point en bleu, si par contre $F(x,y) \simeq 1$, on le coloriera en rouge.
+		\item \textbf{Problématique.} Comment définir les poids $(a,b,c)$ afin que $F(x_i,y_i) \simeq 0$ pour tous les ronds bleus et que $F(x_i,y_i)\simeq1$ pour tous les carrés rouges ? Si on sait trouver de tels poids alors on pourra colorier (presque) n'importe quel point $(x,y)$ du plan (et pas seulement nos ronds et nos carrés) : si $F(x,y) \simeq 0$, on coloriera le point en bleu, si par contre $F(x,y) \simeq 1$, on le coloriera en rouge.
 		Plus précisément, la fonction $F$ (qui dépend de $\sigma$) a ses valeurs dans $[0,1]$ et prend la valeur $F(x,y)=\frac12$ exactement sur la droite $ax+by+c=0$. Ainsi, la fonction $F$ sépare le plan en deux demi-plans $\{ (x,y) \mid F(x,y)\le\frac12\}$ et $\{ (x,y) \mid F(x,y)\ge\frac12\}$ le long de la droite $ax+by+c=0$.
 		
 		\myfigure{0.7}{
 			\tikzinput{fig_retro_06}
 		}  
-		\item L'erreur commise par la fonction $F$ associée aux poids $a,b,c$ est :
-		$$E = E(a,b,c) = \frac{1}N \sum_{i=1}^N E_i(a,b,c)$$
+		\item \textbf{Erreur.} L'erreur commise par la fonction $F$ associée aux poids $a,b,c$ est :
+		$$E = E(a,b,c) = \frac{1}{N} \sum_{i=1}^N E_i(a,b,c)$$
 		où $N$ est le nombre total des données (le nombre de ronds bleus plus le nombre de carrés rouges)
 		et 
 		$$E_i(a,b,c) = \big( F(x_i,y_i) - z_i \big)^2.$$
@@ -1695,8 +1708,9 @@ Nous allons revoir pas à pas l'utilisation d'un réseau de neurones pour résou
 
 
 %--------------------------------------------------------------------
-\subsection{Apprentissage}
-L'apprentissage du réseau consiste à trouver les meilleurs poids en minimisant l'erreur par descente de gradient.
+\subsection{Entraînement par descente de gradient}
+
+L'entraînement du réseau consiste à trouver les meilleurs poids en minimisant l'erreur par descente de gradient sur les données d'entraînement.
 
 \begin{itemize}
 	\item Pour trouver les poids $P = (a_1,a_2,\ldots)$ qui définissent le meilleur réseau $\mathcal{R}$ (autrement dit la meilleure fonction $F$),
@@ -1709,7 +1723,7 @@ L'apprentissage du réseau consiste à trouver les meilleurs poids en minimisant
 	\`A chaque itération, l'erreur $E(P_k)$ diminue.
 	On s'arrête au bout d'un nombre d'itérations fixé à l'avance.
 	
-	\item Pour calculer le gradient $\grad E = \frac 1N \sum_{i=1}^N \grad E_i$, il faut  
+	\item Pour calculer le gradient $\grad E = \frac{1}{N} \sum_{i=1}^N \grad E_i$, il faut  
 	calculer chacun des $\grad E_i$, c'est-à-dire les dérivées partielles par rapport à chacun des poids $a_j$ selon la formule :
 	$$\frac{\partial E_i}{\partial a_j}(X_i) = 2 \frac{\partial F}{\partial a_j}(X_i)  \big( F(X_i) - z_i \big).$$
 \end{itemize}  
@@ -1732,11 +1746,10 @@ L'apprentissage du réseau consiste à trouver les meilleurs poids en minimisant
 		$$\frac{\partial E_i}{\partial b}(a,b,c) = 2 y_i \sigma_i(1-\sigma_i)(\sigma_i - z_i)$$
 		$$\frac{\partial E_i}{\partial c}(a,b,c) = 2 \sigma_i(1-\sigma_i)(\sigma_i - z_i)$$ 
 		et par suite 
-		{\small
-			$$\grad E_i(a,b,c) = \left(\frac{\partial E_i}{\partial a}(a,b,c), \frac{\partial E_i}{\partial b}(a,b,c), \frac{\partial E_i}{\partial c}(a,b,c) \right)
-			\qquad \text{ et  } \qquad 
-			\grad E(a,b,c) = \frac 1N \sum_{i=1}^N \grad E_i.$$
-		}
+			$$\grad E_i(a,b,c) = \left(\frac{\partial E_i}{\partial a}(a,b,c), \frac{\partial E_i}{\partial b}(a,b,c), \frac{\partial E_i}{\partial c}(a,b,c) \right)$$
+et
+			$$\grad E(a,b,c) = \frac{1}{N} \sum_{i=1}^N \grad E_i.$$
+		
 		
 		\item On part de $P_0 = (0,1,-2)$, on calcule $\grad E(P_0) = (-0.077, 0.192, 0.005)$. On obtient le poids suivant par $P_1 = P_0 - \delta \grad E(P_0) = (0.077,    0.807,    -2.005)$ (avec $\delta = 1$).   
 		
@@ -1748,16 +1761,16 @@ L'apprentissage du réseau consiste à trouver les meilleurs poids en minimisant
 			0 & (0, 1, -2)                   & (-0.077, 0.192, 0.005)       & 0.450 \\
 			1 & (0.077,    0.807,    -2.005) & (-0.072,   0.213,   0.0069 ) & 0.404 \\
 			2 & (0.149,    0.593,    -2.012) & (-0.094,   0.188,  -0.0062 ) & 0.355 \\
-			3 & (0.244,    3 0.4,    -2.006) & (-0.120,   0.137,  -0.0237 ) & 0.313 \\
+			3 & (0.244,    0.405,    -2.006) & (-0.120,   0.137,  -0.0237 ) & 0.313 \\
 			4 & (0.364,    0.267,    -1.982) & (-0.090,   0.126,  -0.0240 ) & 0.282 \\
 			5 & (0.455,    0.140,    -1.958) & (-0.073,   0.109,  -0.0263 ) & 0.259 \\
 			6 & (0.528,    0.031,    -1.932) & (-0.059,   0.095,  -0.0278 ) & 0.242 \\
 			7 & (0.588,   -0.063,    -1.904) & (-0.051,   0.083,  -0.0290 ) & 0.229 \\
 			8 & (0.639,   -0.146,    -1.875) & (-0.044,   0.074,  -0.0297 ) & 0.219 \\
 			9 & (0.684,   -0.221,    -1.845) & (-0.040,   0.067,  -0.0302 ) & 0.211 \\
-			10 & (0.72,   -0.288,    -1.815) & (-0.036,   0.061,  -0.0305 ) & 0.205 \\
+			10 & (0.724,   -0.288,    -1.815) & (-0.036,   0.061,  -0.0305 ) & 0.205 \\
 			\cdots & & & \\
-			100 & (1.328 -1.828, 0.333) & (-0.00037, 0.00646, -0.01780) & 0.103 \\
+			100 & (1.328, -1.828, 0.333) & (-0.00037, 0.00646, -0.01780) & 0.103 \\
 			\cdots & & & \\
 			1000 & (2.032, -3.860, 3.703) & (-0.00034, 0.00073, -0.00086) & 0.071 \\  
 		\end{array}
@@ -1794,12 +1807,23 @@ L'apprentissage du réseau consiste à trouver les meilleurs poids en minimisant
 
 
 %--------------------------------------------------------------------
-\subsection{Prédiction}
+\subsection{Validation et prédiction}
 
-La conception d'un réseau de neurones est réalisée en modélisant au mieux les données injectées. Mais l'objectif réel est de faire des prédictions pour de nouvelles valeurs, jamais rencontrées auparavant.
+Une fois l'entraînement terminé, il faut évaluer la qualité du réseau obtenu et l'utiliser pour faire des prédictions.
+
+\subsubsection*{Validation sur les données d'entraînement}
+
 La descente de gradient produit un ensemble de poids $P$ qui définit complètement notre réseau $\mathcal{R}$.
-Nous obtenons donc une fonction $F : \Rr^n \to \Rr^p$, construite de sorte que $F(X_i) \simeq z_i$.
-Nous pouvons évaluer cette fonction pour tout $X \in \Rr^n$, même pour des $X$ différents des $X_i$.
+Nous obtenons donc une fonction $F : \Rr^n \to \Rr^p$, construite de sorte que $F(X_i) \simeq z_i$ pour les données d'entraînement.
+
+Il est important de vérifier que l'erreur $E$ est effectivement devenue petite sur ces données. Cependant, une erreur faible sur les données d'entraînement ne garantit pas que le réseau se comportera bien sur de nouvelles données : c'est le problème du \trouer{sur-apprentissage} que nous discuterons plus loin.
+
+
+\subsubsection*{Prédiction sur de nouvelles données}
+
+La conception d'un réseau de neurones est réalisée en modélisant au mieux les données d'entraînement. Mais l'objectif réel est de faire des prédictions pour de nouvelles valeurs, jamais rencontrées auparavant.
+
+Nous pouvons évaluer la fonction $F$ pour tout $X \in \Rr^n$, même pour des $X$ différents des $X_i$ utilisés pendant l'entraînement. C'est cette capacité de \trouer{généralisation} qui mesure la véritable performance du réseau.
 
 
 \begin{exemple}{}{}
@@ -1811,12 +1835,12 @@ Nous pouvons évaluer cette fonction pour tout $X \in \Rr^n$, même pour des $X$
 		\includegraphics[scale=\myscale,scale=0.45]{figures/retro_01_e}
 	\end{center}
 	
-	On souhaitait avoir $F(x_i,y_i)=0$ pour les ronds bleus et $F(x_i,y_i)=1$ pour les carrés rouges.
+	\textbf{Validation.} On souhaitait avoir $F(x_i,y_i)=0$ pour les ronds bleus et $F(x_i,y_i)=1$ pour les carrés rouges.
 	Dans la pratique, on obtient des valeurs approchées, par exemple $F(0,3)=0.0003$ pour le rond bleu en $(0,3)$ et $F(1,1)=0.86$ pour le carré rouge en $(1,1)$.
 	
 	Notre fonction $F$ ne modélise pas parfaitement toutes nos données. Par exemple, pour le rond bleu en $(4,3)$ on a $F(4,3) = 0.56$ alors qu'on voudrait une valeur proche de $0$ et de même pour le carré rouge en $(3,2.75)$ on a $F(3,2.75) = 0.30$ alors qu'on voudrait une valeur proche de $1$. 
 	
-	Mais l'intérêt principal de $F$ est d'être définie pour tous les points du plan, ceci permet d'attribuer une couleur à chaque point $(x,y) \in \Rr^2$ selon la convention : bleu si $F(x,y)\simeq 0$, rouge si $F(x,y) \simeq 1$. Il y a bien sûr une \og{}zone grise\fg{} entre les zones rouge et bleue.
+	\textbf{Prédiction.} Mais l'intérêt principal de $F$ est d'être définie pour tous les points du plan, ceci permet d'attribuer une couleur à chaque point $(x,y) \in \Rr^2$ selon la convention : bleu si $F(x,y)\simeq 0$, rouge si $F(x,y) \simeq 1$. Il y a bien sûr une \og{}zone grise\fg{} entre les zones rouge et bleue.
 	
 	Par exemple, $F(2,3) = 0.02$ donc $(2,3)$ mérite d'être colorié en bleu, $F(2,1) = 0.98$ donc $(2,1)$ mérite d'être colorié en rouge.
 	La frontière en laquelle $F$ vaut $\frac12$ est la droite d'équation $ax+by+c=0$.
@@ -1828,8 +1852,8 @@ Nous pouvons évaluer cette fonction pour tout $X \in \Rr^n$, même pour des $X$
 	\end{center}
 	
 	
-	Nous avons choisi un réseau avec un seul neurone, la fonction $F$ est donc nécessairement très simple (quels que soient les poids) et ne peut pas \og{}coller\fg{} parfaitement aux données. 
-	Nous avons séparé au mieux les ronds bleus des carrés rouges par une droite. Avec un réseau plus complexe, et donc une frontière plus compliquée, nous aurions pu \og{}coller\fg{} parfaitement aux données. Cependant est-ce vraiment ce que nous souhaitons faire ? Pour les données de notre exemple, avoir une séparation par une droite semble raisonnable. Peut-être que les points transfuges sont des erreurs de mesure.
+	\textbf{Compromis modélisation/généralisation.} Nous avons choisi un réseau avec un seul neurone, la fonction $F$ est donc nécessairement très simple (quels que soient les poids) et ne peut pas \og{}coller\fg{} parfaitement aux données. 
+	Nous avons séparé au mieux les ronds bleus des carrés rouges par une droite. Avec un réseau plus complexe, et donc une frontière plus compliquée, nous aurions pu \og{}coller\fg{} parfaitement aux données. Cependant est-ce vraiment ce que nous souhaitons faire ? Pour les données de notre exemple, avoir une séparation par une droite semble raisonnable. Peut-être que les points transfuges sont des erreurs de mesure. Un modèle trop complexe risquerait de modéliser le bruit plutôt que la structure réelle des données, conduisant à une mauvaise généralisation (voir l'exemple de la section 2.5).
 	
 \end{exemple}
 
@@ -1862,7 +1886,7 @@ Il s'agit de trouver ceux qui rendent l'erreur $E$ minimale.
 
 \bigskip
 
-\textbf{Descente de gradient.}
+\textbf{Entraînement par descente de gradient.}
 On applique la méthode de la descente de gradient à la fonction $E$ pour les variables $(a_1,\ldots,a_9)$.
 On utilise la descente de gradient classique avec un pas $\delta = 1$. 
 Le choix des poids initiaux est déterminant pour les résultats.
@@ -1997,6 +2021,8 @@ $[6,8]$, là où la fonction doit être nulle, et également $10$ carrés rouges
 	\includegraphics[scale=\myscale,scale=0.4]{figures/retro_03_a}
 \end{center}
 
+Note : Dans cet exemple, nous utilisons toutes les données disponibles pour l'entraînement. Pour évaluer la capacité de généralisation, nous nous contenterons de vérifier visuellement que la fonction obtenue a la forme attendue entre les points d'entraînement.
+
 \bigskip
 
 \textbf{Réseau.}
@@ -2011,7 +2037,7 @@ La fonction d'erreur $E$ est la somme des $(F(x_i)-0)^2$ pour les $x_i$ abscisse
 
 \bigskip
 
-\textbf{Descente de gradient.}
+\textbf{Entraînement par descente de gradient.}
 On applique la descente de gradient à la fonction $E$ de variables $(a_1,\ldots,a_7)$ pour un pas $\delta = 1$ et un choix arbitraire de poids initiaux :
 $$P_0 = (a_1,\ldots,a_7) = (0.0, 1.0, 0.0, -1.0, 1.0, 1.0, -1.0).$$
 
@@ -2098,8 +2124,10 @@ On oublie maintenant la fonction $f$ et on ne retient que quelques points rouges
 \textbf{Données.} 
 On divise notre rectangle en une grille de $n \times n$ points. Les exemples ci-dessous sont calculés pour $n=200$. Nous avons donc $40\,000$ points $(x,y)$, repartis (à peu près) équitablement entre rouge ($z=1$) et bleu ($z=0$).
 
+Note : Dans cet exemple, nous utilisons toutes les données pour l'entraînement afin d'illustrer l'impact du nombre de neurones sur la capacité du réseau à modéliser des frontières complexes.
+
 \textbf{Architecture.}
-On décide de concevoir un réseau à $4$ couches, avec le même nombre $p$ de neurones par couche pour les trois premières couches et un seul neurone sur la couche de sortie. La fonction d'activation choisie pour tous les neurones est ReLU .
+On décide de concevoir un réseau à $4$ couches, avec le même nombre $p$ de neurones par couche pour les trois premières couches et un seul neurone sur la couche de sortie. La fonction d'activation choisie pour tous les neurones est ReLU.
 Voici une illustration de la configuration pour $p=3$.
 
 \myfigure{0.8}{
@@ -2165,9 +2193,9 @@ Conclusion : il faut un nombre assez grand de neurones pour pouvoir modéliser d
 
 
 %--------------------------------------------------------------------
-\subsection{Apprentissage}
+\subsection{Entraînement, validation et généralisation}
 
-N'oublions pas le but principal des réseaux de neurones : apprendre à partir des données afin de prédire des résultats pour des situations nouvelles.
+N'oublions pas le but principal des réseaux de neurones : apprendre à partir des données d'entraînement afin de prédire des résultats pour des situations nouvelles. Cette section illustre l'importance de distinguer les données d'entraînement des données de test.
 
 
 Voici un problème pour lequel nous allons tester si les prédictions sur des données nouvelles sont correctes ou pas.
@@ -2182,17 +2210,23 @@ Nous voulons tester si un réseau de neurones permet de retrouver un résultat q
 étant donné une configuration il s'agit de faire calculer à la machine quelle est sa hauteur. 
 
 Il y a en tout $N = \frac{n(n-1)(n-2)}{6}$ configurations possibles pour les trois cases noires parmi $n$ cases.
-On décide d'utiliser la moitié des configurations comme données d'apprentissage et l'autre moitié va nous permettre de tester si le réseau calculé avec les données d'apprentissage se comporte \og{} correctement\fg{} sur les nouvelles données.
+On décide d'utiliser la moitié des configurations comme données d'apprentissage et l'autre moitié va nous permettre de tester si le réseau calculé avec les données d'apprentissage se comporte \og{}correctement\fg{} sur les nouvelles données.
 
 Dans la suite nous prendrons $n=20$ cases, ce qui fait $N=1140$ configurations possibles.
 
+\subsubsection*{Données}
+
 \textbf{Données en entrées.}
-On calcule les $N$ configurations possibles. Après un mélange aléatoire, on ne retient que $N/2$ configurations pour l'apprentissage. Une configuration est codée sous la forme d'un vecteur
+On calcule les $N$ configurations possibles. Après un mélange aléatoire, on ne retient que $N/2$ configurations pour l'entraînement. Une configuration est codée sous la forme d'un vecteur
 $X = (x_1,x_2,\ldots,x_n)$ avec $x_i=0$ (case blanche) ou $x_i = 1$ (case noire).
-Pour chaque configuration $X$ des données d'apprentissage, on calcule la hauteur $z = h(X)$. Les données d'apprentissage sont les $N/2$ données $(X_k,z_k)$ formées des entrées $X_k$ et de la sortie attendue $z_k$ correspond à la hauteur. 
+Pour chaque configuration $X$ des données d'apprentissage, on calcule la hauteur $z = h(X)$. Les données d'apprentissage sont les $N/2$ données $(X_k,z_k)$ formées des entrées $X_k$ et de la sortie attendue $z_k$ correspondant à la hauteur. 
+
+Les $N/2$ configurations restantes constituent les \trouer{données de test}, qui ne seront jamais utilisées pendant l'entraînement.
+
+\subsubsection*{Architecture du réseau}
 
 \textbf{Réseau.}
-Le réseau comporte $n$ entrées : une entrée par case. Il est constituée de $3$ couches.
+Le réseau comporte $n$ entrées : une entrée par case. Il est constitué de $3$ couches.
 Les deux premières couches possèdent $p$ neurones et la couche de sortie un seul. La fonction d'activation est la fonction ReLU pour tous les neurones. Sur la figure ci-dessous est illustré le cas $p=5$.
 
 \myfigure{1}{
@@ -2200,30 +2234,42 @@ Les deux premières couches possèdent $p$ neurones et la couche de sortie un se
 }
 
 
+\subsubsection*{Entraînement}
+
 \textbf{Apprentissage.}
-Le réseau est initialisé avec des poids aléatoires. Ensuite ces poids sont modifiés par une descente de gradient stochastique avec un nombre suffisant d'itérations.
+Le réseau est initialisé avec des poids aléatoires. Ensuite ces poids sont modifiés par une descente de gradient stochastique avec un nombre suffisant d'itérations, en utilisant \textbf{uniquement les données d'entraînement}.
 
 \textbf{Sortie prédite.}
 Le réseau paramétré fournit une fonction $F$ à valeur réelle. La sortie attendue étant un entier, on décide que la sortie prédite sera arrondie à l'entier le plus proche.
 Pour chaque $X_k$, la prédiction est correcte si la valeur arrondie $F(X_k)$ vaut la hauteur $h(X_k)$. 
 
 
+\subsubsection*{Évaluation}
+
 \textbf{Tests.}
-Il faut tester l'efficacité du réseau : tout d'abord le réseau modélise-t-il correctement les données d'apprentissage ? En effet, même si la fonction $F$ a été construite dans le but d'avoir $F(X_k) \simeq z_k$, il n'y a pas nécessairement égalité pour toutes les données d'apprentissage. Mais surtout, il faut tester si la fonction $F$ donne de bonnes prédictions pour de nouvelles données. Nous disposons pour cela des $N/2$ données de test non utilisées lors de l'apprentissage.
+Il faut tester l'efficacité du réseau selon deux critères :
+
+\begin{enumerate}
+	\item \textbf{Validation sur les données d'entraînement :} le réseau modélise-t-il correctement les données qui ont servi à calculer les poids ? En effet, même si la fonction $F$ a été construite dans le but d'avoir $F(X_k) \simeq z_k$, il n'y a pas nécessairement égalité pour toutes les données d'entraînement. On calcule le pourcentage de prédictions correctes sur les $N/2$ données d'entraînement.
+	
+	\item \textbf{Test de généralisation :} surtout, il faut tester si la fonction $F$ donne de bonnes prédictions pour de nouvelles données. Nous disposons pour cela des $N/2$ données de test non utilisées lors de l'apprentissage. C'est ce critère qui mesure la véritable capacité du réseau.
+\end{enumerate}
+
+\subsubsection*{Résultats}
 
 Les résultats dépendent des poids initiaux (aléatoires) et de la liste des configurations choisies pour l'apprentissage (liste qui a été mélangée), on ne retient que les meilleurs résultats parmi plusieurs essais.
 Par exemple, pour $p=10$, voici un des meilleurs résultats obtenus :
 \begin{itemize}
-	\item \emph{Apprentissage.} $560$ données prédites correctement sur un total de de $570$ données d'apprentissage, soit $98\%$ de réussite.
+	\item \emph{Validation (données d'entraînement).} $560$ données prédites correctement sur un total de de $570$ données d'entraînement, soit $98\%$ de réussite.
 	
-	\item \emph{Test.} $506$ données prédites correctement sur un total de de $570$ données de test, soit $89\%$ de réussite.
+	\item \emph{Test (données nouvelles).} $506$ données prédites correctement sur un total de de $570$ données de test, soit $89\%$ de réussite.
 \end{itemize}
 
 Voici quelques résultats pour différentes valeurs de $p$.
 
 \begin{center}
 	\begin{tabular}{c|c|c|c|c}
-		$p$ & {neurones} & {poids} & {pourcentage apprentissage} & {pourcentage test} \\ \hline
+		$p$ & {neurones} & {poids} & {validation entraînement} & {test généralisation} \\ \hline
 		3 & 7 & 79 & 50\% & 45\% \\
 		5 & 11 & 141 & 85\% & 75\% \\
 		7 & 15 & 211 & 90\% & 85\% \\
@@ -2233,7 +2279,34 @@ Voici quelques résultats pour différentes valeurs de $p$.
 	\end{tabular}
 \end{center}
 
-\textbf{Commentaires.} Plus il y a de neurones, plus la fonction $F$ modélise correctement les données d'apprentissage : à partir de $20$ neurones ($p\ge10$), la modélisation est quasi-parfaite. Les pourcentages de réussite pour les données de test sont toujours inférieures et plafonnent à 90\%. Un phénomène nouveau apparaît avec plus de $40$ neurones (pour $p=20$), les pourcentages de réussite sur les tests régressent par rapport à des réseaux ayant moins de neurones, bien que les données d'apprentissage soient parfaitement modélisées : c'est un phénomène de sur-apprentissage.
+\subsubsection*{Analyse et sur-apprentissage}
+
+\textbf{Commentaires.} 
+\begin{itemize}
+	\item Plus il y a de neurones, plus la fonction $F$ modélise correctement les données d'entraînement : à partir de $20$ neurones ($p\ge10$), la modélisation est quasi-parfaite sur les données d'entraînement.
+	
+	\item Les pourcentages de réussite pour les données de test sont toujours inférieurs à ceux de l'entraînement. C'est un phénomène normal : le réseau \og{}connaît\fg{} les données d'entraînement mais doit \og{}deviner\fg{} pour les nouvelles données.
+	
+	\item Les performances de généralisation plafonnent autour de 90\%. Cela signifie que le problème possède une certaine complexité intrinsèque.
+	
+	\item \textbf{Sur-apprentissage :} Un phénomène important apparaît avec plus de $40$ neurones (pour $p=20$). Les pourcentages de réussite sur les tests régressent par rapport à des réseaux ayant moins de neurones, bien que les données d'entraînement soient parfaitement modélisées (100\% de réussite). 
+	
+	Ce phénomène s'appelle le \trouer{sur-apprentissage} (overfitting en anglais) : le réseau a tellement de paramètres qu'il \og{}apprend par cœur\fg{} les données d'entraînement, incluant leurs particularités et leur bruit, au lieu d'apprendre la structure générale du problème. Il perd alors sa capacité à généraliser à de nouvelles situations.
+\end{itemize}
+
+\textbf{Leçon importante.} Cet exemple illustre un principe fondamental de l'apprentissage automatique : 
+\begin{itemize}
+	\item Un réseau trop simple ne peut pas modéliser correctement les données (sous-apprentissage).
+	\item Un réseau trop complexe modélise parfaitement les données d'entraînement mais généralise mal (sur-apprentissage).
+	\item Il faut trouver le bon compromis entre complexité du modèle et capacité de généralisation.
+	\item La séparation entre données d'entraînement et données de test est essentielle pour détecter le sur-apprentissage.
+\end{itemize}
+
+
+
+
+
+
 
 
 
