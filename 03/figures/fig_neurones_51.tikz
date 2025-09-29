@@ -1,4 +1,4 @@
-% Figure after Kjell Magne Fauske
+ % Figure after Kjell Magne Fauske
 % http://www.texample.net/tikz/examples/neural-network/
 \begin{tikzpicture}[scale=1.5]
    \def\layersep{2cm}
