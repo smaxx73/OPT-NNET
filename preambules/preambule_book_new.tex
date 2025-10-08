@@ -108,3 +108,49 @@
 \definecolor{myorange}{rgb}{0.73,0.36,0}
 
 \newcommand{\beameronly}[1]{}
+
+\newcommand{\makecustomtitle}[6]{
+	% Arguments: #1 = titre principal, #2 = sous-titre, #3 = auteur, #4 = date, #5 = école, #6 = filière
+	\begin{titlepage}
+		\centering
+		
+		\vspace*{2cm}
+		
+		% Double ligne décorative (style chapitres)
+		{\color{titlecolour}\noindent\rule{\textwidth}{4pt}}
+		\vspace{3pt}
+		{\color{titlecolour}\noindent\rule{\textwidth}{2pt}}
+		
+		\vspace{1.5cm}
+		
+		% Titre principal
+		{\Huge\sffamily\bfseries\color{titlecolour} #1}
+		
+		\vspace{0.5cm}
+		
+		% Sous-titre
+		{\LARGE\sffamily\color{titlecolour} #2}
+		
+		\vspace{1cm}
+		
+		% École et filière
+		{\Large\sffamily\color{rougefonce} #5 \textperiodcentered\ #6}
+		
+		\vfill
+		
+		% Logo AMSCC en bas
+		\includegraphics[width=6cm]{preambules/LogoAMSCC.png}
+		
+		\vspace{1.5cm}
+		
+		% Informations sur l'auteur
+		{\large\sffamily\textbf{#3}}
+		
+		\vspace{0.5cm}
+		
+		{\large\sffamily #4}
+		
+		\vspace{2cm}
+		
+	\end{titlepage}
+}
