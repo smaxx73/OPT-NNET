@@ -1,0 +1,23 @@
+image: texlive/texlive:latest
+
+stages:
+  - build
+
+compile_latex:
+  stage: build
+  script:
+    # Compilation avec latexmk en utilisant xelatex (comme en local)
+    - latexmk -xelatex -shell-escape -interaction=nonstopmode cours_prof.tex
+  artifacts:
+    paths:
+      - cours_prof.pdf
+      - cours_prof.log
+    expire_in: never
+  only:
+    - main
+  cache:
+    paths:
+      - "*.aux"
+      - "*.fls"
+      - "*.log"
+      - "*.xdv"
